@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.techserve.entities.User;
 import com.techserve.repository.UserRepository;
 
 @Service
@@ -16,7 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserDetails user = userRepo.findByUsername(username);
+		User user = userRepo.findByUsername(username);
 		if(user == null) {
 			throw new UsernameNotFoundException("User Not Found With Username: "+username);
 		}
