@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -59,6 +60,9 @@ public class User implements UserDetails{
 	@Column(nullable = false)
 	@Size(min = 8, max = 12)
 	private String password;
+	
+	@OneToMany(mappedBy = "user")
+	private Set<Address> address = new HashSet<>();
 	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", 
