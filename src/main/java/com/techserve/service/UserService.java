@@ -5,10 +5,11 @@ import java.util.Set;
 
 import com.techserve.payload.user.UserDtoRequest;
 import com.techserve.payload.user.UserDtoResponse;
+import com.techserve.payload.user.UserProfileDto;
 
 public interface UserService {
 
-		UserDtoResponse craeteUser(UserDtoRequest userDtoRequest);
+		String createUser(UserDtoRequest userDtoRequest);
 		
 		UserDtoResponse getUserById(Integer userId);
 		
@@ -19,4 +20,6 @@ public interface UserService {
 		UserDtoResponse updateUser(UserDtoResponse userDtoResponse, Principal principal);
 		
 		void deleteUserById(Integer id);
+		
+		UserProfileDto getProfile(String username);
 }

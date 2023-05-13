@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.techserve.entities.User;
 import com.techserve.payload.user.UserDtoRequest;
 import com.techserve.payload.user.UserDtoResponse;
+import com.techserve.payload.user.UserProfileDto;
 import com.techserve.repository.UserRepository;
 import com.techserve.service.UserService;
 @Service
@@ -24,9 +25,13 @@ public class UserServiceImpl implements UserService {
 	private ModelMapper mapper;
 
 	@Override
-	public UserDtoResponse craeteUser(UserDtoRequest userDtoRequest) {
+	public String createUser(UserDtoRequest userDtoRequest) {
 		User user = mapper.map(userDtoRequest, User.class);
-		return mapper.map(userRepo.save(user),UserDtoResponse.class);
+		User savedUser = userRepo.save(user);
+		if(savedUser != null) {
+			return "Registered Successfully";
+		}
+		return "Something Went Wrong!";
 	}
 
 	@Override
@@ -63,6 +68,12 @@ public class UserServiceImpl implements UserService {
 		if(user != null) {
 			userRepo.delete(user);
 		}
+	}
+
+	@Override
+	public UserProfileDto getProfile(String username) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
