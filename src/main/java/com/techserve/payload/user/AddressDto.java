@@ -11,9 +11,12 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class UserProfileDto {
+public class AddressDto {
+
 	private int id;
-	private String firstname;
-	private String lastname;
-	private String email;
+	private String houseNo;
+	private String street;
+	private String state;
+	private String city;
+	private String pincode;
 }

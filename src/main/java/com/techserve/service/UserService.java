@@ -22,4 +22,5 @@ public interface UserService {
 		void deleteUserById(Integer id);
 		
 		UserProfileDto getProfile(String username);
+		
 }

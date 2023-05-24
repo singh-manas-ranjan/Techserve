@@ -72,8 +72,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserProfileDto getProfile(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		User returnedUser = userRepo.findByUsername(username);
+		UserProfileDto dto = mapper.map(returnedUser, UserProfileDto.class);
+		return dto;
 	}
 
 }
