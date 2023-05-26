@@ -58,7 +58,7 @@ public class ProductController {
 		}
 	}
 	
-	@GetMapping
+	@GetMapping("/id")
 	public String getProductById(@RequestParam Integer productId, Model model) {
 		ProductDto productDto = productService.getProductById(productId);
 		model.addAttribute("title", productDto.getName());
@@ -74,9 +74,17 @@ public class ProductController {
 		
 		model.addAttribute("title", "All Products");
 		List<ProductDto> allProducts = productService.getAllProducts(pageNumber, pageSize, sortBy, sortBy);
-		// if(allProductsByUser.size() > 0) { to do from manage products
-		model.addAttribute("allProducts", allProducts);
-		return "user/allProducts";
+		if(allProducts.size() > 0)
+		{ 
+			model.addAttribute("allProductsByCategory", allProducts);
+			return "user/allProducts";
+		}
+		else
+		{
+			model.addAttribute("allProductsMsg", "No product Found");
+			model.addAttribute("allProductsByCategory", allProducts);
+			return "user/allProducts";
+		}
 	}
 	
 	@GetMapping("/category")
@@ -88,9 +96,17 @@ public class ProductController {
 		
 		model.addAttribute("title", "All Products");
 		List<ProductDto> allproductsByCategory = productService.getAllProductsByCategory(categoryId, pageNumber, pageSize, sortBy, orderBy);
-		// if(allProductsByUser.size() > 0) { to do from manage products
-		model.addAttribute("allProductsByCategory", allproductsByCategory);
-		return "user/allProducts";
+		if(allproductsByCategory.size() > 0)
+		{ 
+			model.addAttribute("allProductsByCategory", allproductsByCategory);
+			return "user/allProducts";
+		}
+		else
+		{
+			model.addAttribute("allProductsByCategoryMsg", "No product Found");
+			model.addAttribute("allProductsByCategory", allproductsByCategory);
+			return "user/allProducts";
+		}
 	}
 	
 	@GetMapping("/manage-products")
@@ -101,15 +117,25 @@ public class ProductController {
 		
 		model.addAttribute("title", "Manage products");
 		List<ProductDto> allProductsByUser = productService.getAllProductsByUser(pageNumber, pageSize, sortBy, orderBy, principal);
-		if(allProductsByUser.size() > 0) {
+		if(allProductsByUser.size() > 0) 
+		{
 			model.addAttribute("allProductsByUser", allProductsByUser);
 			return "user/allProducts";
 		}
-		else {
+		else
+		{
 			model.addAttribute("manageProductMsg", "No Product Found");
 			model.addAttribute("allProductsByUser", allProductsByUser);
 			return"user/allProducts";
 		}
+	}
+	
+	@GetMapping("/update-product")
+	public String updateproductForm(@RequestParam Integer productId, Model model) {
+		model.addAttribute("title", "Update product");
+		ProductDto productDto = productService.getProductById(productId);
+		model.addAttribute("productDto", productDto);
+		return"addProductForm";
 	}
 	
 	@PostMapping("/update-product")

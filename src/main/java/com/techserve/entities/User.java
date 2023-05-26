@@ -72,7 +72,7 @@ public class User implements UserDetails{
 	private Set<Role> roles = new HashSet<>();
 	
 	@OneToMany(mappedBy = "user")
-	private Product product;
+	private Set<Product> product;
 	
 	@Column(nullable=false, columnDefinition="boolean default true")
 	private boolean accountNonExpired = true;

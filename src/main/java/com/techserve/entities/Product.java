@@ -39,7 +39,6 @@ public class Product {
 	@Column(nullable = false)
 	private double price;
 	
-	@Column(nullable = false)
 	@OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
 	private Stock stock;
 	
