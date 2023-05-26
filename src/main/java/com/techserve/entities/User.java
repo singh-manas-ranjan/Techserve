@@ -71,6 +71,9 @@ public class User implements UserDetails{
 	@Column(nullable = false)
 	private Set<Role> roles = new HashSet<>();
 	
+	@OneToMany(mappedBy = "user")
+	private Product product;
+	
 	@Column(nullable=false, columnDefinition="boolean default true")
 	private boolean accountNonExpired = true;
 	
