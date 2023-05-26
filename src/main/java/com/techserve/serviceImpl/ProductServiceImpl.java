@@ -88,6 +88,14 @@ public class ProductServiceImpl implements ProductService {
 		List<ProductDto> dto = allByUser.stream().map(product -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
 		return dto;
 	}
+	
+	@Override
+	public List<ProductDto> getAllProductsByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
+		Pageable pageable = new CustomPageable().getPageable(pageNumber, pageSize, sortBy, orderBy);
+		Page<Product> findAllByNameContaining = productRepo.findAllByNameContaining(keyword, pageable);
+		List<ProductDto> dto = findAllByNameContaining.stream().map(product  -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
+		return dto;
+	}
 
 	@Override
 	public ProductDto updateProduct(ProductDto productDto, Principal principal) {

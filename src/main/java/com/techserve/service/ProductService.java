@@ -17,6 +17,8 @@ public interface ProductService {
 	
 	List<ProductDto> getAllProductsByUser(Integer pageNumber, Integer pageSize, String sortBy, String orderBy, Principal principal);
 	
+	List<ProductDto> getAllProductsByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String orderBy);
+	
 	ProductDto updateProduct(ProductDto	 productDto, Principal principal);
 	
 	String deleteProductById(Integer productId, Principal principal);

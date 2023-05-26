@@ -18,4 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	Page<Product> findAllByCategory(Category category, Pageable pageable);
 	
 	Page<Product> findAllByUser(User user, Pageable pageable);
+	
+	Page<Product> findAllByNameContaining(String keyword, Pageable pageable);
 }

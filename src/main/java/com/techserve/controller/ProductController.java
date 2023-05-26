@@ -109,6 +109,27 @@ public class ProductController {
 		}
 	}
 	
+	@GetMapping("/search")
+	public String findProductBbyKeyword(@RequestParam String keyword,
+			@RequestParam(name = "pageNumber", defaultValue = "1", required = false) Integer pageNumber,
+			@RequestParam(name = "pageSize",defaultValue = "6",required = false) Integer pageSize,
+			@RequestParam(name = "orderBy",defaultValue = "id", required = false) String orderBy,
+			@RequestParam(name = "sortBy", defaultValue = "asc",required = false) String sortBy,
+			Model model) {
+		List<ProductDto> allProductsByKeyword = productService.getAllProductsByKeyword(keyword, pageNumber, pageSize, sortBy, orderBy);
+		if(allProductsByKeyword.size() > 0) 
+		{
+			model.addAttribute("allProductsByUser", allProductsByKeyword);
+			return "user/allProducts";
+		}
+		else
+		{
+			model.addAttribute("allProductsByKeywordMsg", "No Product Found");
+			model.addAttribute("allProductsByKeyword", allProductsByKeyword);
+			return"user/allProducts";
+		}
+	}
+	
 	@GetMapping("/manage-products")
 	public String manageProductsBySeller(@RequestParam(name = "pageNumber", defaultValue = "1", required = false) Integer pageNumber,
 			@RequestParam(name = "pageSize", defaultValue = "6", required = false) Integer pageSize,
