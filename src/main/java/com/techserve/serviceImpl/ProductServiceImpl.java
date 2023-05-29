@@ -1,25 +1,31 @@
 package com.techserve.serviceImpl;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.tika.Tika;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.techserve.CustomExceptions.InvalidFileFormatException;
 import com.techserve.CustomExceptions.ResourceNotFoundException;
 import com.techserve.entities.Category;
 import com.techserve.entities.Product;
 import com.techserve.entities.User;
 import com.techserve.payload.product.ProductDto;
+import com.techserve.payload.product.ProductResponse;
 import com.techserve.repository.CategoryRepository;
 import com.techserve.repository.ProductRepository;
 import com.techserve.repository.UserRepository;
 import com.techserve.service.ProductService;
 import com.techserve.utils.CustomPageable;
+import com.techserve.utils.ImageHelper;
 @Service
 public class ProductServiceImpl implements ProductService {
 	
@@ -36,14 +42,37 @@ public class ProductServiceImpl implements ProductService {
 	private ModelMapper mapper;
 
 	@Override
-	public ProductDto createProduct(ProductDto productDto,Integer categoryId, Principal principal) {
+	public ProductDto createProduct(ProductDto productDto, MultipartFile file, Integer categoryId, Principal principal) {
 		Boolean isExists = productRepo.isProductExistsByName(productDto.getName());
 		if(!isExists) {
 			User user = userRepo.findByUsername(principal.getName());
 			Category category = categoryRepo.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException("Category", "Category_Id", categoryId));
+			
+			String detect = "";
+			Tika tika = new Tika();
+			try {
+				detect = tika.detect(file.getBytes());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			String productImageName = "";
+			if(detect.equals("image/jpeg"))
+			{
+				try {
+					productImageName = new ImageHelper().saveImage(file);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			else {
+				throw new InvalidFileFormatException(file.getOriginalFilename());
+			}
+			
 			Product product = mapper.map(productDto, Product.class);
 			product.setCategory(category);
 			product.setUser(user);
+			product.setImage(productImageName);
 			return mapper.map(productRepo.save(product), ProductDto.class);
 		}
 		return null;
@@ -56,15 +85,15 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<ProductDto> getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
+	public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
 		Pageable pageable = new CustomPageable().getPageable(pageNumber, pageSize, sortBy, orderBy);
 		Page<Product> page = productRepo.findAll(pageable);
 		List<ProductDto> dto = page.stream().map(product -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
-		return dto;
+		return new ProductResponse(dto, page);
 	}
 
 	@Override
-	public List<ProductDto> getAllProductsByCategory(Integer categoryId,Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
+	public ProductResponse getAllProductsByCategory(Integer categoryId,Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
 		
 		Category category = categoryRepo.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException("Product", "Category_Id", categoryId));
 		
@@ -73,36 +102,61 @@ public class ProductServiceImpl implements ProductService {
 		Page<Product> page = productRepo.findAllByCategory(category, pageable);
 		
 		List<ProductDto> dto = page.stream().map(product -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
-		return dto;
+		return  new ProductResponse(dto, page);
 	}
 
 	@Override
-	public List<ProductDto> getAllProductsByUser(Integer pageNumber, Integer pageSize, String sortBy, String orderBy,Principal principal) {
+	public ProductResponse getAllProductsByUser(Integer pageNumber, Integer pageSize, String sortBy, String orderBy,Principal principal) {
 		
 		User user = userRepo.findByUsername(principal.getName());
 		
 		Pageable pageable = new CustomPageable().getPageable(pageNumber, pageSize, sortBy, orderBy);
 		
-		Page<Product> allByUser = productRepo.findAllByUser(user, pageable);
+		Page<Product> page = productRepo.findAllByUser(user, pageable);
 		
-		List<ProductDto> dto = allByUser.stream().map(product -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
-		return dto;
+		List<ProductDto> dto = page.stream().map(product -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
+		return  new ProductResponse(dto, page);
 	}
 	
 	@Override
-	public List<ProductDto> getAllProductsByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
+	public ProductResponse getAllProductsByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
 		Pageable pageable = new CustomPageable().getPageable(pageNumber, pageSize, sortBy, orderBy);
-		Page<Product> findAllByNameContaining = productRepo.findAllByNameContaining(keyword, pageable);
-		List<ProductDto> dto = findAllByNameContaining.stream().map(product  -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
-		return dto;
+		Page<Product> page = productRepo.findAllByNameContaining(keyword, pageable);
+		List<ProductDto> dto = page.stream().map(product  -> mapper.map(product, ProductDto.class)).collect(Collectors.toList());
+		return  new ProductResponse(dto, page);
 	}
 
 	@Override
-	public ProductDto updateProduct(ProductDto productDto, Principal principal) {
+	public ProductDto updateProduct(ProductDto productDto,MultipartFile file, Principal principal) {
 		Product oldProduct = productRepo.findById(productDto.getId()).orElseThrow(()-> new ResourceNotFoundException("Product", "Product_Id", productDto.getId()));
+		Tika tika = new Tika();
+		String fileExtension="";
+		String productImage = "";
+		
+		if( !file.getOriginalFilename().equals(oldProduct.getImage()))
+		{
+				try {
+					fileExtension = tika.detect(file.getBytes());
+					if(fileExtension.equals("image/jpeg")) 
+					{
+						productImage = new ImageHelper().saveImage(file);
+					}
+					else
+					{
+						throw new InvalidFileFormatException(file.getOriginalFilename());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+		
+
 		if(oldProduct.getUser().getUsername().equals(principal.getName())) {
 			Product p = mapper.map(productDto, Product.class);
 			p.setUser(oldProduct.getUser());
+			if(!productImage.equals("")) {
+				p.setImage(productImage);
+			}
 			return mapper.map(productRepo.save(p),ProductDto.class);
 		}
 		else {

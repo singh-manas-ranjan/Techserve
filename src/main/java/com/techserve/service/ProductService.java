@@ -1,25 +1,27 @@
 package com.techserve.service;
 
 import java.security.Principal;
-import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.techserve.payload.product.ProductDto;
+import com.techserve.payload.product.ProductResponse;
 
 public interface ProductService {
 	
-	ProductDto createProduct(ProductDto productDto,Integer categoryId, Principal principal);
+	ProductDto createProduct(ProductDto productDto, MultipartFile file, Integer categoryId, Principal principal);
 	
 	ProductDto getProductById(Integer productId);
 	
-	List<ProductDto> getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String orderBy);
+	ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String orderBy);
 	
-	List<ProductDto> getAllProductsByCategory(Integer categoryId,Integer pageNumber, Integer pageSize, String sortBy, String orderBy);
+	ProductResponse getAllProductsByCategory(Integer categoryId,Integer pageNumber, Integer pageSize, String sortBy, String orderBy);
 	
-	List<ProductDto> getAllProductsByUser(Integer pageNumber, Integer pageSize, String sortBy, String orderBy, Principal principal);
+	ProductResponse getAllProductsByUser(Integer pageNumber, Integer pageSize, String sortBy, String orderBy, Principal principal);
 	
-	List<ProductDto> getAllProductsByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String orderBy);
+	ProductResponse getAllProductsByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String orderBy);
 	
-	ProductDto updateProduct(ProductDto	 productDto, Principal principal);
+	ProductDto updateProduct(ProductDto	 productDto, MultipartFile file, Principal principal);
 	
 	String deleteProductById(Integer productId, Principal principal);
 }
